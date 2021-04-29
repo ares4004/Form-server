@@ -2,6 +2,9 @@ const express = require('express')
 const port = 4000
 
 const app = express()
+app.locals = {}
+
+app.use(express.json())
 
 /*
 const addTwoNumbers = (a, b) => a + b
@@ -55,6 +58,15 @@ const thisIsWhatWillHappen = {
     console.log('Nobody handled this one. Sending 404 instead.')
     response.sendStatus(404)
   },
+  onLoginRequest: (request, response, next) => {
+    const { email, password } = request.body
+    app.locals.email = email
+    app.locals.password = password
+    response.json({ email, password })
+  },
+  onGetUser: (request, response, error) => {
+    response.json({ email: app.locals.email })
+  },
 }
 
 // default url: http://localhost:4000
@@ -75,7 +87,8 @@ app.use('/abhijeet', thisIsWhatWillHappen.onAllRequestsOnAbhijeetPath)
 
 // This will run on all GET requests http://localhost:4000/abhijeet
 app.get('/abhijeet', thisIsWhatWillHappen.onGetRequestsOnAbhijeetPath)
-
+app.post('/login', thisIsWhatWillHappen.onLoginRequest)
+app.get('/user-details', thisIsWhatWillHappen.onGetUser)
 // This will run on all requests, and send a status code 404 if not yet sent
 app.use(thisIsWhatWillHappen.defaultResponseGenerator)
 
